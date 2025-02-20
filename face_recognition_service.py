@@ -44,8 +44,8 @@ class QdrantRecognition():
 # Load configuration
 config = ConfigParser()
 config.read('config.ini')
-QDRANT_URL = config.get('face_recognition', 'qdrant_url', fallback='http://localhost:6333')
-COLLECTION_NAME = config.get('face_recognition', 'collection_name', fallback='faces')
+QDRANT_URL = config.get('face_recognition', 'qdrant_server_url', fallback='http://localhost:6333')
+COLLECTION_NAME = config.get('face_recognition', 'qdrant_collection_name', fallback='facesnet')
 
 # Initialize recognition service
 recognition_service = QdrantRecognition(QDRANT_URL, COLLECTION_NAME)
@@ -66,9 +66,7 @@ def recognize_face():
         "distances": [list of distances],
         "processing_time_ms": float
     }
-    """
-    start_time = time.time()
-    
+    """    
     try:
         # Get data from request
         data = request.json
@@ -77,40 +75,15 @@ def recognize_face():
             return jsonify({"error": "Missing embedding data"}), 400
         
         # Convert embedding to numpy array
-        embedding_list = data['embeddings']
-        
-        # Validate the embedding format
-        if not isinstance(embedding_list, list):
-            # Single embedding case
-            if isinstance(embedding_list, list) and len(embedding_list) == 128:
-                embeddings = [np.array([embedding_list])]
-            else:
-                return jsonify({"error": "Invalid embedding format"}), 400
-        else:
-            # Multiple embeddings case
-            embeddings = []
-            for emb in embedding_list:
-                if len(emb) != 128:
-                    return jsonify({"error": f"Embedding must have 128 dimensions, got {len(emb)}"}), 400
-                embeddings.append(np.array([emb]))
-        
-        # Normalize the embeddings
-        normalized_embeddings = []
-        for emb in embeddings:
-            norm_emb = emb / np.linalg.norm(emb)
-            normalized_embeddings.append(norm_emb)
+        embeddings = data['embeddings']
         
         # Perform recognition
-        names, distances = recognition_service.recognition(normalized_embeddings)
-        
-        # Calculate processing time
-        processing_time = (time.time() - start_time) * 1000  # in milliseconds
-        
+        names, distances = recognition_service.recognition(embeddings)
+                
         # Return results
         return jsonify({
             "names": names,
             "distances": distances,
-            "processing_time_ms": processing_time
         })
     
     except Exception as e:

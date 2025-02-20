@@ -1,0 +1,8 @@
+flask==2.3.3
+pillow==10.4.0
+requests==2.32.3
+qdrant-client==1.12.1
+numpy==1.26.1
+onnxruntime==1.18.1
+cuda-python==12.6.0
+pytz

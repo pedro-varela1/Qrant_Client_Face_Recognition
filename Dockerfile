@@ -8,15 +8,12 @@ ENV PYTHONUNBUFFERED=1
 # Defina o diretório de trabalho no container
 WORKDIR /app
 
-# Instale as dependências necessárias
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    gcc \
-    python3-dev \
-    && rm -rf /var/lib/apt/lists/*
+# Copie apenas o arquivo requirements.txt primeiro
+COPY requirements.txt .
 
-# Instale as dependências específicas
+# Instale as dependências do requirements.txt
 RUN pip install --no-cache-dir -U pip && \
-    pip install --no-cache-dir qdrant-client==1.12.1 requests==2.32.3 flask==2.3.3 numpy==1.26.0
+    pip install --no-cache-dir -r requirements.txt
 
 # Copie o código do serviço
 COPY face_recognition_service.py .
