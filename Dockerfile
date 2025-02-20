@@ -14,9 +14,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     python3-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Copie apenas o arquivo de requisitos primeiro para aproveitar o cache do Docker
-COPY requirements.txt .
-
 # Instale as dependências específicas
 RUN pip install --no-cache-dir -U pip && \
     pip install --no-cache-dir qdrant-client==1.12.1 requests==2.32.3 flask==2.3.3 numpy==1.26.0
